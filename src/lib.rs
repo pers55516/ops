@@ -14,8 +14,9 @@ mod health;
 mod server;
 mod status;
 
-pub use check::{CheckResponse, Checker, NamedChecker};
+pub use check::NamedChecker;
 pub use error::Error;
+pub use ops_core::{CheckResponse, Checker};
 pub use server::server;
 pub use status::StatusBuilder;
 

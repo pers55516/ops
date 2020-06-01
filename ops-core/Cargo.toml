@@ -1,0 +1,10 @@
+[package]
+name = "ops-core"
+description = "Core checker trait for ops."
+repository = "https://github.com/uw-labs/rust-ops"
+version = "0.1.0"
+authors = ["rustaceans <rustaceans@utilitywarehouse.co.uk>"]
+edition = "2018"
+license = "MIT OR Apache-2.0"
+
+[dependencies]

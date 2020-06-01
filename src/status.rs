@@ -1,9 +1,9 @@
 use std::fmt;
 
-use crate::check::{CheckResponse, Checker, NamedChecker};
-use crate::health::Health;
+use crate::check::NamedChecker;
 
 use once_cell::sync::Lazy;
+use ops_core::{CheckResponse, Checker, Health};
 use prometheus::{opts, register_gauge_vec, GaugeVec};
 use rayon::prelude::*;
 use serde_json::{json, Value};
