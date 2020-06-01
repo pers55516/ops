@@ -1,5 +1,14 @@
 # Ops
 
+[![Build Status]][actions] [![Latest Version]][crates.io] [![Latest Docs]][docs.rs]
+
+[Build Status]: https://img.shields.io/github/workflow/status/uw-labs/rust-ops/Rust/master?style=flat-square
+[actions]: https://github.com/uw-labs/rust-ops/actions?query=branch%3Amaster
+[Latest Version]: https://img.shields.io/crates/v/ops.svg?style=flat-square
+[crates.io]: https://crates.io/crates/ops
+[Latest Docs]: https://img.shields.io/badge/docs-latest-blue.svg?style=flat-square
+[docs.rs]: https://docs.rs/ops
+
 Rust implementation of [operational-endpoints-spec](https://github.com/utilitywarehouse/operational-endpoints-spec) making it easy to add the standard endpoints to your application.
 
 ## Usage
@@ -20,13 +29,6 @@ async fn main() {
 ## Examples
 
 See the [examples](/examples) folder for runnable examples.
-
-## Documentation
-
-``` shell
-cargo doc --all --no-deps
-open target/doc/ops/index.html
-```
 
 ## License
 
