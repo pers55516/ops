@@ -1,7 +1,7 @@
 [package]
 name = "ops-core"
 description = "Core checker trait for ops."
-repository = "https://github.com/uw-labs/rust-ops"
+repository = "https://github.com/utilitywarehouse/rust-ops"
 version = "0.1.0"
 authors = ["rustaceans <rustaceans@utilitywarehouse.co.uk>"]
 edition = "2018"

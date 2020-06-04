@@ -2,8 +2,8 @@
 
 [![Build Status]][actions] [![Latest Version]][crates.io] [![Latest Docs]][docs.rs]
 
-[Build Status]: https://img.shields.io/github/workflow/status/uw-labs/rust-ops/Rust/master?style=flat-square
-[actions]: https://github.com/uw-labs/rust-ops/actions?query=branch%3Amaster
+[Build Status]: https://img.shields.io/github/workflow/status/utilitywarehouse/rust-ops/Rust/master?style=flat-square
+[actions]: https://github.com/utilitywarehouse/rust-ops/actions?query=branch%3Amaster
 [Latest Version]: https://img.shields.io/crates/v/ops.svg?style=flat-square
 [crates.io]: https://crates.io/crates/ops
 [Latest Docs]: https://img.shields.io/badge/docs-latest-blue.svg?style=flat-square

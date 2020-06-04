@@ -7,7 +7,7 @@ members = [
 [package]
 name = "ops"
 description = "Adds operational endpoints to your application"
-repository = "https://github.com/uw-labs/rust-ops"
+repository = "https://github.com/utilitywarehouse/rust-ops"
 version = "0.2.0"
 authors = ["rustaceans <rustaceans@utilitywarehouse.co.uk>"]
 edition = "2018"
