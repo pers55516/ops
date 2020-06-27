@@ -328,7 +328,9 @@ impl<T: Checker> Status for StatusWithChecks<T> {
     }
 
     async fn check(&self) -> Option<HealthResult> {
-        let checks = futures_util::future::join_all(self.checkers.iter()).await;
+        let checkers = self.checkers.iter().map(|c| c.check());
+
+        let checks = futures_util::future::join_all(checkers).await;
 
         let checks = checks.iter().zip(self.checkers.iter());
 

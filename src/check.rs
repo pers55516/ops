@@ -1,9 +1,6 @@
 use std::fmt;
-use std::future::Future;
-use std::pin::Pin;
-use std::task::{Context, Poll};
 
-use ops_core::{CheckResponse, Checker};
+use ops_core::{async_trait, CheckResponse, Checker};
 
 /// Associates a name with a [`Checker`](trait.Checker.html).
 pub struct NamedChecker<T: Checker> {
@@ -11,11 +8,10 @@ pub struct NamedChecker<T: Checker> {
     checker: T,
 }
 
-impl<T: Checker> Future for &NamedChecker<T> {
-    type Output = CheckResponse;
-
-    fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
-        Pin::new(&mut self.checker.check()).poll(cx)
+#[async_trait]
+impl<T: Checker> Checker for NamedChecker<T> {
+    async fn check(&self) -> CheckResponse {
+        self.checker.check().await
     }
 }
 
