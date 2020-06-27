@@ -1,4 +1,4 @@
-use ops::{server, CheckResponse, Checker, NamedChecker, Result, StatusBuilder};
+use ops::{async_trait, server, CheckResponse, Checker, NamedChecker, Result, StatusBuilder};
 
 const APP_NAME: &str = "example";
 const APP_DESC: &str = "An example app with an ops server";
@@ -8,8 +8,9 @@ const HOST: &str = "0.0.0.0:3000";
 
 struct NoopChecker {}
 
+#[async_trait]
 impl Checker for NoopChecker {
-    fn check(&self) -> CheckResponse {
+    async fn check(&self) -> CheckResponse {
         CheckResponse::healthy("noop is always healthy")
     }
 }

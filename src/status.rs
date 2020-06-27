@@ -3,9 +3,8 @@ use std::fmt;
 use crate::check::NamedChecker;
 
 use once_cell::sync::Lazy;
-use ops_core::{CheckResponse, Checker, Health};
+use ops_core::{async_trait, CheckResponse, Checker, Health};
 use prometheus::{opts, register_gauge_vec, GaugeVec};
-use rayon::prelude::*;
 use serde_json::{json, Value};
 
 const HEALTHCHECK_NAME: &str = "healthcheck_name";
@@ -28,15 +27,16 @@ enum Ready {
     Never,
 }
 
+#[async_trait]
 pub trait Status: Send + Sync {
     /// Details of the application, as JSON.
     fn about(&self) -> Value;
 
     /// Determines the readiness of the application.
-    fn ready(&self) -> Option<bool>;
+    async fn ready(&self) -> Option<bool>;
 
     /// Checks the health of the application.
-    fn check(&self) -> Option<HealthResult>;
+    async fn check(&self) -> Option<HealthResult>;
 }
 
 #[derive(Debug)]
@@ -168,6 +168,7 @@ impl StatusBuilder {
     }
 }
 
+/// A status with no health checks
 pub struct StatusNoChecks {
     name: String,
     description: String,
@@ -206,6 +207,7 @@ impl StatusNoChecks {
     }
 }
 
+#[async_trait]
 impl Status for StatusNoChecks {
     fn about(&self) -> Value {
         json!({
@@ -219,7 +221,7 @@ impl Status for StatusNoChecks {
         })
     }
 
-    fn ready(&self) -> Option<bool> {
+    async fn ready(&self) -> Option<bool> {
         match self.ready {
             Some(Ready::Always) => Some(true),
             Some(Ready::Never) => Some(false),
@@ -227,11 +229,12 @@ impl Status for StatusNoChecks {
         }
     }
 
-    fn check(&self) -> Option<HealthResult> {
+    async fn check(&self) -> Option<HealthResult> {
         None
     }
 }
 
+/// A status with health checks
 pub struct StatusWithChecks<T: Checker> {
     name: String,
     description: String,
@@ -275,8 +278,8 @@ impl<T: Checker> StatusWithChecks<T> {
         self
     }
 
-    fn use_health_check(&self) -> bool {
-        match self.check().unwrap().health {
+    async fn use_health_check(&self) -> bool {
+        match self.check().await.unwrap().health {
             Health::Healthy => true,
             Health::Degraded => true,
             Health::Unhealthy => false,
@@ -306,6 +309,7 @@ impl<T: Checker> StatusWithChecks<T> {
     }
 }
 
+#[async_trait]
 impl<T: Checker> Status for StatusWithChecks<T> {
     fn about(&self) -> Value {
         json!({
@@ -319,22 +323,24 @@ impl<T: Checker> Status for StatusWithChecks<T> {
         })
     }
 
-    fn ready(&self) -> Option<bool> {
-        Some(self.use_health_check())
+    async fn ready(&self) -> Option<bool> {
+        Some(self.use_health_check().await)
     }
 
-    fn check(&self) -> Option<HealthResult> {
+    async fn check(&self) -> Option<HealthResult> {
+        let checks = futures_util::future::join_all(self.checkers.iter()).await;
+
+        let checks = checks.iter().zip(self.checkers.iter());
+
         let mut health_result = HealthResult::new(
             self.name.to_owned(),
             self.description.to_owned(),
             Health::Unhealthy,
-            self.checkers
-                .par_iter()
-                .map(|c| {
-                    let resp = c.checker().check();
-                    self.update_check_metrics(&c, &resp);
+            checks
+                .map(|(resp, checker)| {
+                    self.update_check_metrics(checker, resp);
                     HealthResultEntry::new(
-                        c.name().to_owned(),
+                        checker.name().to_owned(),
                         resp.health().to_owned(),
                         resp.output().to_owned(),
                         resp.action().map(str::to_string),

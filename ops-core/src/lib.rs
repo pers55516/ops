@@ -1,7 +1,10 @@
+pub use async_trait::async_trait;
+
 /// An interface for something that can be periodically checked.
+#[async_trait]
 pub trait Checker: Send + Sync {
     /// Runs the check and returns a [`CheckResponse`](struct.CheckResponse.html).
-    fn check(&self) -> CheckResponse;
+    async fn check(&self) -> CheckResponse;
 }
 
 /// The response of a check.

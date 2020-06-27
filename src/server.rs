@@ -34,7 +34,7 @@ async fn router<S: Status + 'static>(req: Request<Body>, status: Arc<S>) -> Resu
 }
 
 async fn ready<S: Status + 'static>(status: Arc<S>) -> Result<Response<Body>> {
-    let resp = match status.ready() {
+    let resp = match status.ready().await {
         None => Response::builder()
             .header(header::CONTENT_TYPE, "text/plain")
             .status(StatusCode::NOT_FOUND)
@@ -57,7 +57,7 @@ async fn ready<S: Status + 'static>(status: Arc<S>) -> Result<Response<Body>> {
 }
 
 async fn health<S: Status + 'static>(status: Arc<S>) -> Result<Response<Body>> {
-    let resp = match status.check() {
+    let resp = match status.check().await {
         None => Response::builder()
             .status(StatusCode::NOT_FOUND)
             .body(Body::from("No health checks"))?,
