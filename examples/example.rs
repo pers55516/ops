@@ -20,7 +20,7 @@ async fn main() -> Result<()> {
     let noop = NoopChecker {};
 
     let healthchecks = StatusBuilder::healthchecks(APP_NAME, APP_DESC)
-        .checker(NamedChecker::new("noop", noop))
+        .checker(NamedChecker::new("noop", Box::new(noop)))
         .revision(APP_SHA);
 
     let server = server(HOST.parse()?, healthchecks);

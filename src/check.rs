@@ -3,19 +3,19 @@ use std::fmt;
 use ops_core::{async_trait, CheckResponse, Checker};
 
 /// Associates a name with a [`Checker`](trait.Checker.html).
-pub struct NamedChecker<T: Checker> {
+pub struct NamedChecker {
     name: String,
-    checker: T,
+    checker: Box<dyn Checker>,
 }
 
 #[async_trait]
-impl<T: Checker> Checker for NamedChecker<T> {
+impl Checker for NamedChecker {
     async fn check(&self) -> CheckResponse {
         self.checker.check().await
     }
 }
 
-impl<T: Checker> fmt::Debug for NamedChecker<T> {
+impl fmt::Debug for NamedChecker {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("NamedChecker")
             .field("name", &self.name)
@@ -23,9 +23,9 @@ impl<T: Checker> fmt::Debug for NamedChecker<T> {
     }
 }
 
-impl<T: Checker> NamedChecker<T> {
+impl NamedChecker {
     /// Creates a new [`NamedChecker`](struct.NamedChecker.html).
-    pub fn new(name: &str, checker: T) -> Self {
+    pub fn new(name: &str, checker: Box<dyn Checker>) -> Self {
         Self {
             name: safe_metric_name(name),
             checker,
@@ -38,7 +38,7 @@ impl<T: Checker> NamedChecker<T> {
     }
 
     /// The actual checker itself
-    pub fn checker(&self) -> &T {
+    pub fn checker(&self) -> &Box<dyn Checker> {
         &self.checker
     }
 }

@@ -156,7 +156,7 @@ impl StatusBuilder {
     }
 
     /// Healthchecks returns a status that expects one or more [`NamedChecker`](struct.NamedChecker.html).
-    pub fn healthchecks<T: Checker>(name: &str, description: &str) -> StatusWithChecks<T> {
+    pub fn healthchecks(name: &str, description: &str) -> StatusWithChecks {
         StatusWithChecks {
             name: name.to_owned(),
             description: description.to_owned(),
@@ -235,16 +235,16 @@ impl Status for StatusNoChecks {
 }
 
 /// A status with health checks
-pub struct StatusWithChecks<T: Checker> {
+pub struct StatusWithChecks {
     name: String,
     description: String,
-    checkers: Vec<NamedChecker<T>>,
+    checkers: Vec<NamedChecker>,
     revision: Option<String>,
     owners: Vec<Owner>,
     links: Vec<Link>,
 }
 
-impl<T: Checker> fmt::Debug for StatusWithChecks<T> {
+impl fmt::Debug for StatusWithChecks {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("StatusWithChecks")
             .field("name", &self.name)
@@ -253,9 +253,9 @@ impl<T: Checker> fmt::Debug for StatusWithChecks<T> {
     }
 }
 
-impl<T: Checker> StatusWithChecks<T> {
+impl StatusWithChecks {
     /// Adds a [`NamedChecker`](`struct.NamedChecker.html`).
-    pub fn checker(mut self, checker: NamedChecker<T>) -> Self {
+    pub fn checker(mut self, checker: NamedChecker) -> Self {
         self.checkers.push(checker);
         self
     }
@@ -286,7 +286,7 @@ impl<T: Checker> StatusWithChecks<T> {
         }
     }
 
-    fn update_check_metrics(&self, checker: &NamedChecker<T>, response: &CheckResponse) {
+    fn update_check_metrics(&self, checker: &NamedChecker, response: &CheckResponse) {
         use std::collections::HashMap;
 
         let res = response.health();
@@ -310,7 +310,7 @@ impl<T: Checker> StatusWithChecks<T> {
 }
 
 #[async_trait]
-impl<T: Checker> Status for StatusWithChecks<T> {
+impl Status for StatusWithChecks {
     fn about(&self) -> Value {
         json!({
             "name": self.name,
