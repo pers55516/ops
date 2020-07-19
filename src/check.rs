@@ -38,6 +38,7 @@ impl NamedChecker {
     }
 
     /// The actual checker itself
+    #[allow(clippy::borrowed_box)]
     pub fn checker(&self) -> &Box<dyn Checker> {
         &self.checker
     }
