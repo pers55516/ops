@@ -17,11 +17,19 @@ documentation = "https://docs.rs/ops/"
 
 [dependencies]
 futures-util = "0.3"
-hyper = { version = "0.14", features = ["http1", "server", "tcp"] }
+hyper = { version = "0.14", features = ["http1", "server", "tcp"], optional = true }
 once_cell = "1"
 ops-core = "0.2"
 prometheus = { version = "0.11", default-features = false, features = ["process"] }
+serde = { version = "1.0.126", optional = true }
 serde_json = { version = "1" }
+trillium = { version = "0.1.2", optional = true }
+trillium-router = { version = "0.1.1", optional = true }
 
 [dev-dependencies]
 tokio = { version = "1", features = ["full"] }
+
+[features]
+default = ["hyper_server"]
+hyper_server = ["hyper"]
+trillium_server = ["serde", "trillium", "trillium-router"]
