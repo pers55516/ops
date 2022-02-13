@@ -4,7 +4,7 @@ use crate::status::Status;
 use crate::Result;
 
 use serde::Serialize;
-use trillium::{conn_try, conn_unwrap, Conn, Handler, State};
+use trillium::{conn_try, conn_unwrap, Conn, Handler, KnownHeaderName::ContentType, State};
 use trillium_router::Router;
 
 /// Routes to be attached to a Trillium app runtime
@@ -23,7 +23,7 @@ fn routes<S: Status + 'static>() -> impl Handler {
 }
 
 async fn ready<S: Status + 'static>(conn: Conn) -> Conn {
-    let status = conn_unwrap!(conn, conn.state::<Arc<S>>());
+    let status = conn_unwrap!(conn.state::<Arc<S>>(), conn);
 
     match status.ready().await {
         Some(is_ready) => {
@@ -38,7 +38,7 @@ async fn ready<S: Status + 'static>(conn: Conn) -> Conn {
 }
 
 async fn health<S: Status + 'static>(conn: Conn) -> Conn {
-    let status = conn_unwrap!(conn, conn.state::<Arc<S>>());
+    let status = conn_unwrap!(conn.state::<Arc<S>>(), conn);
 
     match status.check().await {
         Some(resp) => conn.with_status(200).with_json(resp.to_json()),
@@ -47,7 +47,7 @@ async fn health<S: Status + 'static>(conn: Conn) -> Conn {
 }
 
 async fn about<S: Status + 'static>(conn: Conn) -> Conn {
-    let status = conn_unwrap!(conn, conn.state::<Arc<S>>());
+    let status = conn_unwrap!(conn.state::<Arc<S>>(), conn);
 
     let about = status.about();
 
@@ -55,10 +55,10 @@ async fn about<S: Status + 'static>(conn: Conn) -> Conn {
 }
 
 async fn metrics(conn: Conn) -> Conn {
-    let metrics = conn_try!(conn, render_metrics());
+    let metrics = conn_try!(render_metrics(), conn);
 
     conn.with_status(200)
-        .with_header(("content-type", "text/plain; version=0.0.4; charset=utf-8"))
+        .with_header(ContentType, "text/plain; version=0.0.4; charset=utf-8")
         .with_body(metrics)
 }
 
@@ -68,8 +68,8 @@ trait JsonConnExt {
 
 impl JsonConnExt for Conn {
     fn with_json(self, t: impl Serialize + Send + Sync + 'static) -> Self {
-        let body = conn_try!(self, serde_json::to_string(&t));
-        self.with_header(("content-type", "application/json"))
+        let body = conn_try!(serde_json::to_string(&t), self);
+        self.with_header(ContentType, "application/json")
             .with_body(body)
     }
 }
